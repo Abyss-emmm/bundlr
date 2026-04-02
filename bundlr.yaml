@@ -1,0 +1,33 @@
+# .bundlr.yaml — bundlr default configuration
+# Place this file next to the bundlr binary.
+# src/out are CLI-only. This file only defines filter defaults.
+# CLI flags always win over these defaults.
+
+# Default file extensions to collect.
+# If omitted, bundlr falls back to the output file suffix from -o.
+# ext:
+#   - .py
+
+# Default exclude patterns — relative path globs matched from src using '/' separators.
+# '*' matches one segment; '**' matches across directories.
+# CLI -exclude values are merged on top of these (not replaced).
+exclude:
+  - .*
+  - "**/.*"
+  - venv
+  - .venv
+  - vendor
+  - node_modules
+  - dist
+  - build
+  - __pycache__
+  - "**/*.pb.go"
+  - "**/*.pyc"
+
+# Default include patterns — only relative paths matching these globs are collected.
+# '*' matches one segment; '**' matches across directories.
+# Leave empty (or commented out) to include all files of the given extensions.
+# CLI -include replaces this entirely when provided.
+# include:
+#   - "internal/**/handler_*.go"
+#   - "**/*_test.go"

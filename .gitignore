@@ -1,0 +1,9 @@
+# Hidden directories
+.*/
+**/.*/
+
+# Build outputs
+bin/
+
+# Local Go build cache
+.gocache/
