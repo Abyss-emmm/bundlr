@@ -1,9 +1,15 @@
-# Hidden directories
-.*/
-**/.*/
-
 # Build outputs
 bin/
 
 # Local Go build cache
 .gocache/
+
+# Common local editor and environment directories
+.idea/
+.vscode/
+.venv/
+venv/
+
+# Common local OS files
+.DS_Store
+Thumbs.db

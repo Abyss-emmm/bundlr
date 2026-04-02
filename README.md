@@ -11,10 +11,17 @@
 ## 安装
 
 ```bash
+go mod tidy          # 拉取 gopkg.in/yaml.v3
 go build -o bundlr bundlr.go
+
 # 可选：移动到 PATH 中
 mv bundlr /usr/local/bin/bundlr
+
+# 可选：复制一份示例配置到常用位置
+cp bundlr.yaml ~/.bundlr.yaml
 ```
+
+也可以直接前往 GitHub 的 Releases 页面下载已经打包好的 Windows、Linux 和 macOS 版本。
 
 ---
 
@@ -40,6 +47,7 @@ bundlr [参数] [src]
 
 | 参数 | 默认值 | 说明 |
 |---|---|---|
+| `-c` | _(none)_ | YAML 配置文件路径 |
 | `-o` | `all_in_one.py` | 输出文件路径 |
 | `-ext` | `取自 -o 的后缀` | 要收集的文件扩展名 |
 | `-include` | _(all)_ | 只包含匹配此相对路径 glob 的文件 |
@@ -77,9 +85,6 @@ bundlr -exclude 'internal/**/generated/*.go'      # 跨多级目录匹配
 bundlr -exclude 'cmd/api/*.go,cmd/web/*.go'       # 逗号分隔
 ```
 
-模式会对完整相对路径做匹配，不再按路径片段或单独文件名隐式匹配。
-像 `vendor` 这种不带 glob 的写法对根目录项依然有效，因为该目录的相对路径本身就是 `vendor`。
-如果你想跳过隐藏目录、`__pycache__` 或其他生成内容，请显式使用 `-exclude`。
 
 ### `-include` — 白名单特定文件
 
@@ -133,9 +138,55 @@ bundlr . -o handlers.go -ext .go -include '**/handler_*.go' -exclude vendor
 
 ---
 
-## LLM 使用技巧
+## 配置文件
 
-- **`-include` 和 `-exclude` 要具体** — 打包内容越小越聚焦，LLM 的回答质量越高。大多数 LLM 都有上下文窗口限制。
+如果你不想每次都重复输入 `-exclude venv -exclude node_modules` 之类的默认规则，可以把它们写进 YAML 配置文件，再通过 `-c` 指定：
+
+```bash
+bundlr -c ~/.bundlr.yaml . -o bundle.py
+```
+
+配置文件不会自动加载，必须显式传入 `-c`。
+配置文件只提供 `ext`、`include`、`exclude` 的默认值；`src` 和 `-o` 仍然只能通过命令行指定。
+
+**示例配置：**
+
+```yaml
+# ~/.bundlr.yaml
+exclude:
+  - venv
+  - .venv
+  - vendor
+  - node_modules
+  - dist
+  - build
+  - "**/*.pb.go"
+  - "**/*_generated*"
+```
+
+所有字段都是可选的，不需要的可以省略。
+
+| 字段 | 类型 | 说明 |
+|---|---|---|
+| `ext` | 列表 | 默认文件扩展名；未提供时仍回退到 `-o` 的后缀 |
+| `exclude` | 列表 | 默认排除规则 |
+| `include` | 列表 | 默认包含规则 |
+
+**合并规则：**
+
+| 参数 | 配置文件与 CLI 的关系 |
+|---|---|
+| `src` / `-o` | 仅 CLI 支持，配置文件不会读取 |
+| `-ext` / `-include` | CLI 显式传入时直接覆盖配置文件 |
+| `-exclude` | 合并；CLI 传入的排除规则会追加在配置文件规则之后 |
+
+这意味着配置文件中的 `exclude` 适合作为长期默认值，而单次运行时可以继续额外追加排除项。
+
+---
+
+## bundlr 使用技巧
+
+- **`-include` 和 `-exclude` 要具体** — 打包内容越小越聚焦，`bundlr` 生成的结果就越适合发给 LLM。大多数 LLM 都有上下文窗口限制。
 - **输出文件名要有意义** — 比如用 `auth_handlers.go` 而不是 `bundle.go`，这样你也能记住里面有什么。
 - **修改后重新打包** — 做出更改后再运行一次 bundlr，这样下一次 LLM 对话就能看到最新代码。
 

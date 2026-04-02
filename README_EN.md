@@ -19,6 +19,8 @@ mv bundlr /usr/local/bin/bundlr
 cp bundlr.yaml ~/.bundlr.yaml
 ```
 
+You can also download prebuilt Windows, Linux, and macOS binaries from the GitHub Releases page.
+
 ---
 
 ## Quick Start
@@ -81,9 +83,6 @@ bundlr -exclude 'internal/**/generated/*.go'      # skip matching files across n
 bundlr -exclude 'cmd/api/*.go,cmd/web/*.go'       # comma-separated
 ```
 
-Patterns are matched against the full relative path, not individual path segments or bare file names.
-Plain names like `vendor` still work for root-level entries because the relative path of that directory is exactly `vendor`.
-Use `-exclude` if you want to skip hidden directories, `__pycache__`, or any other generated content.
 
 ### `-include` — Whitelist specific files
 
@@ -183,7 +182,7 @@ This means your config's `exclude` list is always active as a baseline, and you 
 
 ---
 
-## Tips for LLM Use
+## bundlr Usage Tips
 
 - **Be specific with `-include` and `-exclude`** — the smaller and more focused the bundle, the better the LLM's response. Most LLMs have a context window limit.
 - **Name your output file meaningfully** — e.g. `auth_handlers.go` instead of `bundle.go` so you remember what's inside.
