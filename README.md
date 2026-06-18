@@ -49,7 +49,7 @@ bundlr [参数] [src]
 |---|---|---|
 | `-c` | _(none)_ | YAML 配置文件路径 |
 | `-o` | `all_in_one.py` | 输出文件路径 |
-| `-ext` | `取自 -o 的后缀` | 要收集的文件扩展名 |
+| `-ext` | `取自 -o 的后缀` | 要收集的文件扩展名；传 `all` 或 `*` 时收集所有文件 |
 | `-include` | _(all)_ | 只包含匹配此相对路径 glob 的文件 |
 | `-exclude` | _(none)_ | 排除匹配此相对路径 glob 的目录或文件 |
 
@@ -64,11 +64,14 @@ bundlr [参数] [src]
 逗号分隔或重复使用。前缀的点号可选。
 如果未提供 `-ext`，bundlr 会使用 `-o` 的后缀。
 如果 `-o` 也没有后缀，则直接报错退出。
+传入 `all` 或 `*` 会收集所有文件，不再按扩展名过滤。
 
 ```bash
 bundlr -ext .go
 bundlr -ext .go,.ts,.js
 bundlr -ext go -ext ts        # 效果相同
+bundlr -ext all               # 收集所有文件
+bundlr -ext '*'               # 同样收集所有文件；建议加引号避免 shell 展开
 ```
 
 ### `-exclude` — 跳过目录或文件
@@ -132,6 +135,9 @@ bundlr . -o tests.go -ext .go -include '**/*_test.go'
 # 多语言项目（Go + TypeScript）
 bundlr . -o bundle.txt -ext .go,.ts -exclude node_modules -exclude vendor
 
+# 收集所有文件，但跳过依赖和构建输出
+bundlr . -o bundle.txt -ext all -exclude node_modules -exclude vendor -exclude dist
+
 # 只聚焦 handler 层
 bundlr . -o handlers.go -ext .go -include '**/handler_*.go' -exclude vendor
 ```
@@ -168,7 +174,7 @@ exclude:
 
 | 字段 | 类型 | 说明 |
 |---|---|---|
-| `ext` | 列表 | 默认文件扩展名；未提供时仍回退到 `-o` 的后缀 |
+| `ext` | 列表 | 默认文件扩展名；可使用 `all` 或 `*` 表示所有文件；未提供时仍回退到 `-o` 的后缀 |
 | `exclude` | 列表 | 默认排除规则 |
 | `include` | 列表 | 默认包含规则 |
 

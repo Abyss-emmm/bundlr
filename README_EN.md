@@ -47,7 +47,7 @@ bundlr [flags] [src]
 |---|---|---|
 | `-c` | _(none)_ | Path to YAML config file |
 | `-o` | `all_in_one.py` | Output file path |
-| `-ext` | `suffix from -o` | File extension(s) to collect |
+| `-ext` | `suffix from -o` | File extension(s) to collect; use `all` or `*` to collect every file |
 | `-include` | _(all)_ | Only include relative paths matching this glob |
 | `-exclude` | _(none)_ | Exclude relative paths matching this glob |
 
@@ -62,11 +62,14 @@ bundlr [flags] [src]
 Comma-separated or repeated. Dot prefix is optional.
 If `-ext` is omitted, bundlr uses the suffix from `-o`.
 If `-o` has no suffix either, bundlr exits with an error.
+Pass `all` or `*` to collect every file without extension filtering.
 
 ```bash
 bundlr -ext .go
 bundlr -ext .go,.ts,.js
 bundlr -ext go -ext ts        # same result
+bundlr -ext all               # collect every file
+bundlr -ext '*'               # same; quote it to avoid shell expansion
 ```
 
 ### `-exclude` — Skip directories or files
@@ -130,6 +133,9 @@ bundlr . -o tests.go -ext .go -include '**/*_test.go'
 # Multi-language project (Go + TypeScript)
 bundlr . -o bundle.txt -ext .go,.ts -exclude node_modules -exclude vendor
 
+# Collect every file, but skip dependencies and build output
+bundlr . -o bundle.txt -ext all -exclude node_modules -exclude vendor -exclude dist
+
 # Focus on handler layer only
 bundlr . -o handlers.go -ext .go -include '**/handler_*.go' -exclude vendor
 ```
@@ -166,7 +172,7 @@ All fields are optional — omit any you don't need.
 
 | Field | Type | Description |
 |---|---|---|
-| `ext` | list | Default file extensions. If omitted, bundlr falls back to the suffix from `-o` |
+| `ext` | list | Default file extensions. Use `all` or `*` for every file. If omitted, bundlr falls back to the suffix from `-o` |
 | `exclude` | list | Default exclude patterns |
 | `include` | list | Default include patterns |
 

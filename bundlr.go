@@ -144,8 +144,14 @@ func main() {
 	excludes := mergeUnique(cfg.Exclude, excludeFlag.values)
 
 	// ── Resolve extensions ────────────────────────────────────────────────────
+	includeAllFiles := false
 	extensions := map[string]bool{}
 	for _, e := range exts {
+		e = strings.TrimSpace(e)
+		if strings.EqualFold(e, "all") || e == "*" {
+			includeAllFiles = true
+			continue
+		}
 		if !strings.HasPrefix(e, ".") {
 			e = "." + e
 		}
@@ -155,7 +161,11 @@ func main() {
 	// ── Print summary ─────────────────────────────────────────────────────────
 	fmt.Printf("Scanning : %s\n", absSrc)
 	fmt.Printf("Output   : %s\n", absOut)
-	fmt.Printf("Ext      : %s\n", formatSet(extensions))
+	if includeAllFiles {
+		fmt.Printf("Ext      : all files\n")
+	} else {
+		fmt.Printf("Ext      : %s\n", formatSet(extensions))
+	}
 	if len(includes) > 0 {
 		fmt.Printf("Include  : %s\n", strings.Join(includes, ", "))
 	}
@@ -193,10 +203,12 @@ func main() {
 		}
 
 		// Extension filter
-		name := d.Name()
-		ext := strings.ToLower(filepath.Ext(name))
-		if !extensions[ext] {
-			return nil
+		if !includeAllFiles {
+			name := d.Name()
+			ext := strings.ToLower(filepath.Ext(name))
+			if !extensions[ext] {
+				return nil
+			}
 		}
 
 		// -include: relative path must match at least one pattern
